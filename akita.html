@@ -55,6 +55,7 @@
               <li>Encourages Simplicity</li>
               <li>Good support</li>
               <li>Well documented</li>
+              <li>From the creator of Spectator</li>
               <li>Has a "0 bugs policy"</li>
               <li>Integrates with Redux DevTools</li>
               <li>Way simpler than NGRX, NGXS, Plain RxJS</li>
@@ -70,13 +71,136 @@
         <img src="img/akita-arc.jpg">
       </section>
       <section>
+        <p>The Store</p>
+        <p>
+          <small>
+            <ul>
+              <li>The Store is a single object which contains the store state and serves as the "single source of
+                truth."</li>
+              </li>
+            </ul>
+          </small>
+        </p>
+        <pre>
+          <code data-trim data-noescape>
+            import { Store, StoreConfig } from '@datorama/akita';
+
+            export interface SessionState {
+               token: string;
+               name: string;
+            }
+            
+            @StoreConfig({ name: 'session' })
+            export class SessionStore extends Store<SessionState> {
+              constructor() {
+                super();
+              }
+            }
+            </code>
+          </pre>
+      </section>
+      <section>
+        <p>The Query</p>
+        <p>
+          <small>
+            <ul>
+              <li>A Query is a class offering functionality responsible for querying the store. </li>
+            </ul>
+          </small>
+        </p>
+        <pre>
+          <code data-trim data-noescape>
+            import { Query } from '@datorama/akita';
+
+            @Injectable()
+            export class SessionQuery extends Query<SessionState> {
+              isLoggedIn$ = this.select(state => !!state.token);
+              selectName$ = this.select('name');
+              multi$ = this.select(['name', 'age']) // { name, age }
+              multi$ = this.select[state => state.name, state => state.age] // [name, age]
+              
+              constructor(protected store: SessionStore) {
+                super(store);
+              }
+            }
+
+            this.isLoading$ = this.authQuery.selectLoading();
+            this.error$ = this.authQuery.selectError();
+          </code>
+        </pre>
+      </section>
+      <section>
+        <p>The Service</p>
+        <p>
+          <small>
+            <ul>
+              <li>Akita recommends using a service rather than call the store methods directly by a component.</li>
+            </ul>
+          </small>
+        </p>
+        <pre>
+          <code data-trim data-noescape>
+            import { SessionStore } from './session.store';
+            import { tap } from 'rxjs/operators';
+            
+            export class SessionService {
+            
+              constructor(private sessionStore: SessionStore, 
+                          private http: HttpClient) {}
+            
+              login(creds) {
+                return http.login(creds).pipe(tap(user => {
+                  this.sessionStore.update(user);
+                }));
+              }
+            }
+            </code>
+          </pre>
+      </section>
+
+      <section>
+        <p>DevTools</p>
+        <img src="img/devtools.gif">
+      </section>
+      <section>
+        <p>UI State</p>
+        <pre>
+        <code data-trim data-noescape>
+          export interface TodosState extends EntityState<Todo> {
+            ui: {
+              filter: VISIBILITY_FILTER;
+            };
+          }
+          
+          const initialState = {
+            ui: { filter: VISIBILITY_FILTER.SHOW_ALL }
+          };
+          
+          @StoreConfig({ name: 'todos' })
+          export class TodosStore extends EntityStore<TodosState> {
+            constructor() {
+              super(initialState);
+            }
+            
+            updateFilter(filter: VISIBILITY_FILTER) {
+              this.update({ ui: { filter } } )
+            }
+          }
+        </code>
+      </pre>
+      </section>
+      <section>
         <p class="grow">Links</p>
         <p>
           <small>
             <ul>
-              <li>https://netbasal.gitbook.io/akita/</li>
-              <li>
-                https://engineering.datorama.com/10-reasons-why-you-should-start-using-akita-as-your-state-management-solution-66b63d033fec
+              <li><a href="https://netbasal.gitbook.io/akita/">https://netbasal.gitbook.io/akita/</a></li>
+              <li><a
+                  href="https://engineering.datorama.com/10-reasons-why-you-should-start-using-akita-as-your-state-management-solution-66b63d033fec">
+                  https://engineering.datorama.com/10-reasons-why-you-should-start-using-akita-as-your-state-management-solution-66b63d033fec</a>
+              </li>
+              <li><a
+                  href="https://netbasal.gitbook.io/akita/entity-store/ui-state">https://netbasal.gitbook.io/akita/entity-store/ui-state</a>
               </li>
             </ul>
           </small>
@@ -110,13 +234,13 @@
         //   src: "plugin/notes/notes.js",
         //   async: true
         // },
-        // {
-        //   src: "plugin/highlight/highlight.js",
-        //   async: true,
-        //   callback: function () {
-        //     hljs.initHighlightingOnLoad();
-        //   }
-        // }
+        {
+          src: "plugin/highlight/highlight.js",
+          async: true,
+          callback: function () {
+            hljs.initHighlightingOnLoad();
+          }
+        }
       ]
     });
   </script>
