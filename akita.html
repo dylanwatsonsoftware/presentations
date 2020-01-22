@@ -83,15 +83,13 @@
         </p>
         <pre>
           <code data-trim data-noescape>
-            import { Store, StoreConfig } from '@datorama/akita';
-
-            export interface SessionState {
-               token: string;
-               name: string;
-            }
+            import { Todo } from './todo.model';
+            import { EntityState, EntityStore, StoreConfig } from '@datorama/akita';
             
-            @StoreConfig({ name: 'session' })
-            export class SessionStore extends Store<SessionState> {
+            export interface TodosState extends EntityState<Todo, number> { }
+            
+            @StoreConfig({ name: 'todos' })
+            export class TodosStore extends EntityStore<TodosState> {
               constructor() {
                 super();
               }
@@ -110,25 +108,68 @@
         </p>
         <pre>
           <code data-trim data-noescape>
-            import { Query } from '@datorama/akita';
-
+            import { QueryEntity } from '@datorama/akita';
+            
             @Injectable()
-            export class SessionQuery extends Query<SessionState> {
-              isLoggedIn$ = this.select(state => !!state.token);
-              selectName$ = this.select('name');
-              multi$ = this.select(['name', 'age']) // { name, age }
-              multi$ = this.select[state => state.name, state => state.age] // [name, age]
-              
-              constructor(protected store: SessionStore) {
+            export class TodosQuery extends QueryEntity<TodosState> {
+              constructor(protected store: TodosStore) {
                 super(store);
               }
             }
-
-            this.isLoading$ = this.authQuery.selectLoading();
-            this.error$ = this.authQuery.selectError();
           </code>
         </pre>
       </section>
+      <section>
+        <p>Query methods</p>
+        <p>
+          <small>
+            <ul>
+              <li>Store all your queries in a single place</li>
+            </ul>
+          </small>
+        </p>
+        <pre>
+          <code data-trim data-noescape>
+            export class TodosQuery extends QueryEntity<TodosState> {
+              todos$ = this.query.selectAll();
+
+              todosAsObject$ = this.query.selectAll({
+                asObject: true
+              });
+
+              todosFiltered$ = this.query.selectAll({
+                filterBy: entity => entity.completed === true,
+                limitTo: 5
+              });
+
+              constructor(protected store: TodosStore) {
+                super(store);
+              }
+            }
+          </code>
+        </pre>
+      </section>
+      <section>
+        <p>Query usage</p>
+        <p>
+          <small>
+            <ul>
+              <li>Allows for simple filtering of your entities</li>
+            </ul>
+          </small>
+        </p>
+        <pre>
+          <code data-trim data-noescape>
+            constructor(private query: TodosQuery) {
+              this.todos$ = this.query.selectAll();
+              this.todos$ = this.query.$todos;
+              this.todos = this.query.getAll();
+              this.isLoading$ = this.authQuery.selectLoading();
+              this.error$ = this.authQuery.selectError();
+            }
+          </code>
+        </pre>
+      </section>      
       <section>
         <p>The Service</p>
         <p>
