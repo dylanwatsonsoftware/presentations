@@ -58,10 +58,40 @@
               <li>From the creator of Spectator</li>
               <li>Has a "0 bugs policy"</li>
               <li>Integrates with Redux DevTools</li>
-              <li>Way simpler than NGRX, NGXS, Plain RxJS</li>
+              <li>Way simpler than NGRX, NGXS or Plain RxJS</li>
+              <li>Concept of "Actions" is hidden - you just call methods</li>
               <li>Very active community (GitHub, Gitter, Medium, Dev.to)</li>
               <li>Plugins including: redo-undo, persist state, dirty check, pagination, devtools, router integration
               </li>
+            </ul>
+          </small>
+        </p>
+      </section>
+      <section>
+        <p class="grow">NGRX</p>
+        <p>Reactive State for Angular</p>
+        <p>
+          <small>
+            <ul>
+              <li>Complex</li>
+              <li>"Pure" Functions</li>
+              <li>Modeled by Stores, Effects, Actions, Reducers and Selectors</li>
+              <li>Effected by dispatching actions to the store</li>
+            </ul>
+          </small>
+        </p>
+      </section>
+      <section>
+        <p class="grow">NGXS</p>
+        <p>Reactive State for Angular</p>
+        <p>
+          <small>
+            <ul>
+              <li>Complex</li>
+              <li>"Pure" Functions</li>
+              <li>Modeled by Stores, Actions, State and Selectors</li>
+              <li>Effected by dispatching actions to the store</li>
+              <li>Simpler than NGRX but still ultimately requires custom code to handle actions</li>
             </ul>
           </small>
         </p>
@@ -169,7 +199,7 @@
             }
           </code>
         </pre>
-      </section>      
+      </section>
       <section>
         <p>The Service</p>
         <p>
@@ -198,37 +228,39 @@
             </code>
           </pre>
       </section>
+      <section>
+        <p>Summary</p>
+        <p>
+          <small>
+            <ul>
+              <li>Call method on service to update store via http</li>
+              <li>Subscribe to query - all changes will be retrieved</li>
+            </ul>
+          </small>
+        </p>
+        <pre>
+          <code data-trim data-noescape>
+            export class ProductsComponent {
 
+              products$ = this.productQuery.selectAll();
+            
+              constructor(private productService: ProductService, 
+                          private productQuery: ProductQuery) {}
+            
+              ngOnInit() {
+                this.productService.getProducts();
+              }
+
+              save(product: Product) {
+                this.productService.save(product);
+              }
+            }
+            </code>
+          </pre>
+      </section>
       <section>
         <p>DevTools</p>
         <img src="img/devtools.gif">
-      </section>
-      <section>
-        <p>UI State</p>
-        <pre>
-        <code data-trim data-noescape>
-          export interface TodosState extends EntityState<Todo> {
-            ui: {
-              filter: VISIBILITY_FILTER;
-            };
-          }
-          
-          const initialState = {
-            ui: { filter: VISIBILITY_FILTER.SHOW_ALL }
-          };
-          
-          @StoreConfig({ name: 'todos' })
-          export class TodosStore extends EntityStore<TodosState> {
-            constructor() {
-              super(initialState);
-            }
-            
-            updateFilter(filter: VISIBILITY_FILTER) {
-              this.update({ ui: { filter } } )
-            }
-          }
-        </code>
-      </pre>
       </section>
       <section>
         <p class="grow">Links</p>
